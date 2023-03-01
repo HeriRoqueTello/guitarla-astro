@@ -1,0 +1,26 @@
+---
+import Guitarra from '../components/Guitarra.astro';
+import Layout from '../layouts/Layout.astro';
+const url = `${import.meta.env.PUBLIC_API_URL}/guitars?populate=image`;
+const res = await fetch(url);
+const { data } = await res.json();
+---
+
+<Layout title="Home">
+	<main class="contenedor">
+		<h1 class="heading">Tienda Virtual</h1>
+		<div class="grid">
+			{
+				data?.map((guitar) => (
+					<Guitarra
+						name={guitar.attributes.name}
+						description={guitar.attributes.description}
+						url={guitar.attributes.url}
+						price={guitar.attributes.price}
+						image={guitar.attributes.image.data.attributes.formats.medium.url}
+					/>
+				))
+			}
+		</div>
+	</main>
+</Layout>

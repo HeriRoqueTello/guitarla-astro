@@ -1,0 +1,59 @@
+---
+import { formatearFecha } from '../../../helpers/date';
+import Layout from '../../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	const url = `${import.meta.env.PUBLIC_API_URL}/posts?populate=image`;
+	const resp = await fetch(url);
+	const { data } = await resp.json();
+	return data.map((post) => ({
+		params: {
+			id: post.attributes.url,
+		},
+		props: {
+			post: post.attributes,
+		},
+	}));
+}
+
+const { title, conteint, image, publishedAt } = Astro.props.post;
+---
+
+<Layout title={title}>
+	<article class="post mt-3">
+		<img src={image.data.attributes.formats.medium.url} alt={`Banner ${title}`} />
+		<div class="contenido">
+			<h3>{title}</h3>
+			<p class="fecha">{formatearFecha(publishedAt)}</p>
+			<p class="texto">{conteint}</p>
+		</div>
+	</article>
+</Layout>
+
+<style>
+	.post {
+		max-width: 80rem;
+		margin: 0 auto;
+	}
+	.contenido {
+		padding: 1.5rem;
+	}
+	.contenido h3 {
+		font-weight: 900;
+		font-size: 2.8rem;
+		margin: 0;
+		text-align: center;
+	}
+	.fecha {
+		font-size: 1.6rem;
+		color: var(--primary);
+		text-align: right;
+	}
+	.texto {
+		white-space: pre-wrap;
+		text-align: justify;
+	}
+	.mt-3 {
+		margin-top: 3rem;
+	}
+</style>

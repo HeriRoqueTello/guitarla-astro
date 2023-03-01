@@ -1,81 +1,57 @@
 ---
+import Course from '../components/Course.astro';
+import Guitarra from '../components/Guitarra.astro';
+import Post from '../components/Post.astro';
 import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+const urlGuitars = `${import.meta.env.PUBLIC_API_URL}/guitars?populate=image`;
+const urlPosts = `${import.meta.env.PUBLIC_API_URL}/posts?populate=image`;
+const urlCourse = `${import.meta.env.PUBLIC_API_URL}/course?populate=image`;
+
+const [resGuitars, resPosts, resCourse] = await Promise.all([fetch(urlGuitars), fetch(urlPosts), fetch(urlCourse)]);
+
+const [{ data: guitars }, { data: posts }, { data: course }] = await Promise.all([
+	resGuitars.json(),
+	resPosts.json(),
+	resCourse.json(),
+]);
 ---
 
-<Layout title="Welcome to Astro.">
-	<main>
-		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
-		<p class="instructions">
-			To get started, open the directory <code>src/pages</code> in your project.<br />
-			<strong>Code Challenge:</strong> Tweak the "Welcome to Astro" message above.
-		</p>
-		<ul role="list" class="link-card-grid">
-			<Card
-				href="https://docs.astro.build/"
-				title="Documentation"
-				body="Learn how Astro works and explore the official API docs."
-			/>
-			<Card
-				href="https://astro.build/integrations/"
-				title="Integrations"
-				body="Supercharge your project with new frameworks and libraries."
-			/>
-			<Card
-				href="https://astro.build/themes/"
-				title="Themes"
-				body="Explore a galaxy of community-built starter themes."
-			/>
-			<Card
-				href="https://astro.build/chat/"
-				title="Community"
-				body="Come say hi to our amazing Discord community. ❤️"
-			/>
-		</ul>
+<Layout title="Home">
+	<main class="contenedor">
+		<h1 class="heading">Nuestra coleccion</h1>
+		<div class="grid">
+			{
+				guitars?.map((guitar) => (
+					<Guitarra
+						name={guitar.attributes.name}
+						description={guitar.attributes.description}
+						url={guitar.attributes.url}
+						price={guitar.attributes.price}
+						image={guitar.attributes.image.data.attributes.formats.medium.url}
+					/>
+				))
+			}
+		</div>
 	</main>
+	<Course
+		title={course.attributes.title}
+		conteint={course.attributes.conteint}
+		image={course.attributes.image.data.attributes.formats.medium.url}
+	/>
+	<section class="contenedor">
+		<h2 class="heading">Blog</h2>
+		<div class="grid">
+			{
+				posts.map((post) => (
+					<Post
+						title={post.attributes.title}
+						conteint={post.attributes.conteint}
+						url={post.attributes.url}
+						image={post.attributes.image.data.attributes.formats.medium.url}
+						publishedAt={post.attributes.publishedAt}
+					/>
+				))
+			}
+		</div>
+	</section>
 </Layout>
-
-<style>
-	main {
-		margin: auto;
-		padding: 1.5rem;
-		max-width: 60ch;
-	}
-	h1 {
-		font-size: 3rem;
-		font-weight: 800;
-		margin: 0;
-	}
-	.text-gradient {
-		background-image: var(--accent-gradient);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-size: 400%;
-		background-position: 0%;
-	}
-	.instructions {
-		line-height: 1.6;
-		margin: 1rem 0;
-		border: 1px solid rgba(var(--accent), 25%);
-		background-color: white;
-		padding: 1rem;
-		border-radius: 0.4rem;
-	}
-	.instructions code {
-		font-size: 0.875em;
-		font-weight: bold;
-		background: rgba(var(--accent), 12%);
-		color: rgb(var(--accent));
-		border-radius: 4px;
-		padding: 0.3em 0.45em;
-	}
-	.instructions strong {
-		color: rgb(var(--accent));
-	}
-	.link-card-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
-		gap: 1rem;
-		padding: 0;
-	}
-</style>
